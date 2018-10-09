@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+{% block content %}
+    <style>
+
+        #div_digg {
+            float: right;
+            margin-bottom: 10px;
+            margin-right: 30px;
+            font-size: 12px;
+            width: 125px;
+            text-align: center;
+            margin-top: 10px;
+        }
+
+        .diggit {
+            float: left;
+            width: 46px;
+            height: 52px;
+            background: url(/static/img/upup.gif) no-repeat;
+            text-align: center;
+            cursor: pointer;
+            margin-top: 2px;
+            padding-top: 5px;
+        }
+
+        .buryit {
+            float: right;
+            margin-left: 20px;
+            width: 46px;
+            height: 52px;
+            background: url(/static/img/downdown.gif) no-repeat;
+            text-align: center;
+            cursor: pointer;
+            margin-top: 2px;
+            padding-top: 5px;
+        }
+
+        .clear {
+            clear: both;
+        }
+    </style>
+
+    {% csrf_token %}
+    <div>
+        <div class="text-center"><h4>{{ article.title }}</h4></div>
+        <div>{{ article.content|safe }}</div>
+    </div>
+
+
+
+    {#    点赞#}
+    <div id="div_digg">
+        <div class="diggit action">
+            <span class="diggnum" id="digg_count">{{ article.up_num }}</span>
+        </div>
+        <div class="buryit action">
+            <span class="burynum" id="bury_count">{{ article.down_num }}</span>
+        </div>
+        <div class="clear"></div>
+        <div class="diggword" id="digg_tips" style="color: red;"></div>
+    </div>
+
+    <script>
+        $(".action").click(function () {
+            var obj = $(this).children('span');
+            var is_up = $(this).hasClass('diggit')
+            alert(is_up)
+            $.ajax({
+                url: '/diggit/',
+                type: 'post',
+                data: {
+                    'csrfmiddlewaretoken': '{{ csrf_token }}',
+                    {#谁对那篇文章点赞或点踩#}
+                    'article_id':{{ article.nid }},
+                    'is_up': is_up
+                },
+                success: function (data) {
+                    $("#digg_tips").text(data.msg)
+                    if (data.status) {
+                        obj.text(Number(obj.text())+1)
+
+                    }
+
+                }
+
+            })
+
+
+        })
+
+
+    </script>
+
+{% endblock %}
